@@ -8,7 +8,7 @@ def load_ini(file: str, stats: dict) -> None:
     config = cp()
     config.read(file, encoding='utf-8')
     for section in config.sections():
-        stats[section] = {key: config[section][key] for key in config[section]}
+        stats[section] = {key: int(config[section][key]) for key in config[section]}
 
 
 def write_ini(file: str, stats: dict) -> None:
