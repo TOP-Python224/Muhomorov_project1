@@ -2,6 +2,7 @@
 
 from configparser import ConfigParser
 from data import *
+board = list(' ' * DIM ** 2)
 
 
 def read_ini() -> None:
@@ -16,14 +17,13 @@ def read_ini() -> None:
     saves = ConfigParser()
     saves.read(SAVES_FILE, encoding='utf-8')
     for section in saves.sections():
-        curr_section = {}
-        turns = [int(i) for i in saves[section]['turns'].split(',')]
         players = section.split(';')
-        curr_section[players[0]], curr_section[players[1]] = [], []
+        players_key = (players[0], players[1])
+        turns = [int(i) for i in saves[section]['turns'].split(',')]
+        SAVES[players_key] = {players[0]: [], players[1]: [], 'turns': turns}
         for i, turn in enumerate(turns):
-            curr_section[players[i % 2]].append(turn)
-            curr_section['turns'] = turns
-        SAVES.append(curr_section)
+            SAVES[players_key][players[i % 2]].append(turn)
+
     print(SAVES)
 
 
@@ -34,16 +34,21 @@ def write_ini() -> None:
     with open(PLAYERS_FILE, 'w', encoding='utf-8') as ini_file:
         players.write(ini_file)
     saves = ConfigParser()
-    for pair in SAVES:
-        player1, player2, turns = pair.keys()
+    for elems in SAVES.keys():
+        player1, player2 = list(elems)
         section = f"{player1};{player2}"
         saves[section] = {}
-        saves[section]['turns'] = ','.join([str(i) for i in pair[turns]])
-    with open('player_test.ini', 'w', encoding='utf-8') as ini_file:
+        saves[section]['turns'] = ','.join([str(i) for i in SAVES[elems]['turns']])
+    with open('saves_test.ini', 'w', encoding='utf-8') as ini_file:
         saves.write(ini_file)
 
 
+def draw_board(align_right: bool = False) -> str:
+    """Формирует и возвращает строку, содержащую псевдографическое изображение игрового поля со сделанными ходами."""
+
+
 if __name__ == '__main__':
+    # pass
     read_ini()
     write_ini()
     # print(STATS)

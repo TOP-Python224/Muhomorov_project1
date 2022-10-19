@@ -3,7 +3,7 @@
 
 # глобальные переменные данных
 STATS = {}
-SAVES = []
+SAVES = {}
 
 PLAYERS = ['PlayerA', 'PlayerB']
 TOKENS = ('X', 'O')
