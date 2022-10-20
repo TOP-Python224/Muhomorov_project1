@@ -5,18 +5,19 @@
 STATS = {}
 SAVES = {}
 
-PLAYERS = ['PlayerA', 'PlayerB']
+PLAYERS = []
 TOKENS = ('X', 'O')
 
 DIM = 3
 RANGE = range(DIM)
 RANGE_FLAT = range(DIM**2)
 
-TURNS = []
-BOARD = [''] * DIM**2
-
-PLAYERS_FILE = './players.ini'
-SAVES_FILE = './saves.ini'
+TURNS = [1]
+# TURNS = [1, 2, 3]
+BOARD = [' '] * DIM**2
+# BOARD = ['X', 'X', '0', '0', 'X', 'X', '0', '0', 'X']
+# BOARD = ['0', 'X', '0', '0', 'X', 'X', 'X', '0', 'X', 'X', 'X', 'X', '0', '0', '0', '0']
+# BOARD = ['0', '0', '0', '0', '0', '0', 'X', '0', 'X', '0', 'X', 'X', 'X', 'X', '0', '0', '0', '0', 'X', 'X', 'X', '0', '0', '0', '0']
 
 # глобальные константы
 APP_TITLE = "КРЕСТИКИ-НОЛИКИ"
