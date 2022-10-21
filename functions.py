@@ -20,10 +20,10 @@ def read_ini() -> bool:
     saves = ConfigParser()
     saves.read(saves_file, encoding='utf-8')
     for section in saves.sections():
-        players = section.split(';')
-        players_key = (players[0], players[1])
+        # ИСПОЛЬЗОВАТЬ: конвертацию в кортеж
+        players = tuple(section.split(';'))
         turns = [int(i) for i in saves[section]['turns'].split(',')]
-        data.SAVES[players_key] = turns
+        data.SAVES[players] = turns
     if data.STATS:
         return False
     else:
@@ -37,11 +37,11 @@ def write_ini() -> None:
     with open(players_file, 'w', encoding='utf-8') as ini_file:
         players.write(ini_file)
     saves = ConfigParser()
-    for elems in data.SAVES.keys():
-        player1, player2 = list(elems)
+    for save in data.SAVES:
+        player1, player2 = list(save)
         section = f"{player1};{player2}"
         saves[section] = {}
-        saves[section]['turns'] = ','.join([str(i) for i in data.SAVES[elems]])
+        saves[section]['turns'] = ','.join([str(i) for i in data.SAVES[save]])
     with open(saves_file, 'w', encoding='utf-8') as ini_file:
         saves.write(ini_file)
 
@@ -62,20 +62,20 @@ def draw_board(align_right: bool = False) -> str:
 
 
 if __name__ == '__main__':
-    # pass
-    print(draw_board())
-    print(draw_board(True))
-    # read_ini()
-    # write_ini()
-    # print(data.STATS)
-    # data.STATS['Player1']['wins'] = 3
-    # data.STATS['Player2']['fails'] = 1
-    # data.STATS['Ioann'] = {'wins': 0, 'fails': 0, 'ties': 0, 'training': 'True'}
-    # data.SAVES[('PlayerC', 'PlayerD')] = [1, 3, 6]
-    # write_ini()
-    # read_ini()
-    # print(data.STATS)
-    # print(data.SAVES)
+    # print(draw_board())
+    # print(draw_board(True))
+    read_ini()
+    write_ini()
+    print(data.STATS)
+    data.STATS['Player1']['wins'] = 3
+    data.STATS['Player2']['fails'] = 1
+    data.STATS['Ioann'] = {'wins': 0, 'fails': 0, 'ties': 0, 'training': 'True'}
+    data.SAVES[('PlayerC', 'PlayerD')] = [1, 3, 6]
+    write_ini()
+    read_ini()
+    print(data.STATS)
+    print(data.SAVES)
+
 
 # stdout:
 #    |   |
