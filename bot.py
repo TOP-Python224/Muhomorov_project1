@@ -8,8 +8,8 @@ all_turns = {i for i in range(1, 10)}
 
 def dump_bot() -> int:
     """Возвращает случайный ход из доступного диапазона ходов."""
-    return choice(list(all_turns - set(data.TURNS)))
+    return choice(list(all_turns - set(data.TURNS))) - 1
 
 
 if __name__ == '__main__':
-    print(dump_bot())
+    pass

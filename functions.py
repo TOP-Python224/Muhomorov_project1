@@ -3,6 +3,7 @@
 from configparser import ConfigParser
 from shutil import get_terminal_size
 import data
+import functions
 
 players_file = './players.ini'
 saves_file = './saves.ini'
@@ -46,86 +47,98 @@ def write_ini() -> None:
         saves.write(ini_file)
 
 
-# ДОБАВИТЬ: а теперь самое время добавить параметр, в который передавать нужную матрицу — ведь мы можем использовать эту функцию не только с глобальной переменной board (см. комментарий к тесту ниже)
-def draw_board(align_right: bool = False) -> str:
+def get_player_name() -> None:
+    """Запрашивает имя игрока и проверяет присутствие этого имени в глобальной переменной статистики, добавляет имя в глобальную переменную текущих игроков."""
+
+    while True:
+        player_name = input(f"Введите имя игрока{data.PROMPT}")
+        if player_name == '':
+            print('Имя игрока не может быть пустым!')
+            continue
+        if player_name.startswith('#'):
+            print('Имя игрока не должно начинаться на "#"!')
+            continue
+        if player_name in data.PLAYERS:
+            print('Игрок не может играть сам с собой!')
+            continue
+        else:
+            if player_name not in data.STATS:
+                data.STATS[player_name] = {'wins': 0, 'fails': 0, 'ties': 0, 'training': True}
+                functions.write_ini()
+                data.PLAYERS.append(player_name)
+            else:
+                data.PLAYERS.append(player_name)
+            break
+
+def draw_board(board: list[str], align_right: bool = False) -> str:
     """Формирует и возвращает строку, содержащую псевдографическое изображение игрового поля со сделанными ходами."""
-    # КОММЕНТАРИЙ: ширина клетки не обязательно составляет ровно три символа — строго говоря она вообще может быть примерно любой (см. тесты ниже)
-    h_line = '—' * (data.DIM*3 + data.DIM - 1) + '\n'
+    max_width = len(max(board, key=lambda elem: len(elem)))
+    centered_board = [elem.center(max_width + 2)
+                      for elem in
+                      [' ' * (max_width - len(i)) + i for i in board]]
+    h_line = '—' * (data.DIM * (max_width + 2) + data.DIM - 1) + '\n'
     result = ''
     if align_right:
-        align = get_terminal_size()[0] - 1
+        align = get_terminal_size()[0] - 2
     else:
         align = len(h_line) + 1
     for i in data.RANGE:
-        # СДЕЛАТЬ: можно позже, но я бы сделал всё-таки отдельно центрирование каждой клетки по вычисленной ширине — тогда и вот эти неочевидные пробелы в разделителе и в начале/конце ряда не понадобятся
-        row = ' | '.join(data.BOARD[i*data.DIM:(i+1)*data.DIM])
-        result += f" {row.rjust(align-3)} \n"
+        row = '|'.join(centered_board[i * data.DIM: (i + 1) * data.DIM])
+        result += f"{row.rjust(align - 1)}\n"
     h_line = f"\n{h_line.rjust(align)}"
-    # КОММЕНТАРИЙ: а вот это изящно, хвалю
     result = result.rstrip('\n').replace('\n', h_line)
     return result
 
 
-if __name__ == '__main__':
-    print(draw_board())
-    print(draw_board(True))
+def update_stats(score: data.Score) -> None:
+    """Обновляет глобальную переменную статистики в соответствии с результатом завершённой партии."""
+    remove_saves = ()
+    for elem in score:
+        for player in elem:
+            remove_saves += player,
+            for results in elem.values():
+                for result in results:
+                    data.STATS[player][result] += results[result]
+                    data.STATS[player]['training'] = False
+    data.SAVES.pop(remove_saves)
+    functions.write_ini()
 
+
+def show_stats() -> None:
+    """Выводит в stdout статистику игроков."""
+    for player in data.STATS:
+        print(f"Игрок {player}\nпобедил {data.STATS[player]['wins']} раз, "
+              f"проиграл {data.STATS[player]['fails']} раз, "
+              f"вничью {data.STATS[player]['ties']} раз.")
+
+
+if __name__ == '__main__':
+    pass
+    # functions.read_ini()
+    # get_player_name()
+    # read_ini()
+    # print(draw_board(data.BOARD))
+    # print(draw_board(data.BOARD, True))
+    # get_player_name()
+    # write_ini()
 
 # stdout:
-# для DIM = 3, BOARD = [' '] * DIM**2
-#    |   |
-# ———————————
-#    |   |
-# ———————————
-#    |   |
-#                                                                       |   |
-#                                                                    ———————————
-#                                                                       |   |
-#                                                                    ———————————
-#                                                                       |   |
-
-# для DIM = 3, BOARD = ['X', 'X', '0', '0', 'X', 'X', '0', '0', 'X']
-#  X | X | 0
-# ———————————
-#  0 | X | X
-# ———————————
-#  0 | 0 | X
-#                                                                    X | X | 0
-#                                                                   ———————————
-#                                                                    0 | X | X
-#                                                                   ———————————
-#                                                                    0 | 0 | X
-
-# КОММЕНТАРИЙ: когда вы захотите использовать эту же функцию на большом поле для вывода подсказки игроку, какой выводить номер клетки, то столкнётесь с таким поведением — а всё из-за того, что у вас подразумевается ширина клетки всегда три символа, и ширина горизонтального разделителя рассчитывается из этой статичной ширин — как видите, это не всегда так
-# для DIM = 5, BOARD = list(str(n) for n in range(1, 26))
-#   1 | 2 | 3 | 4 | 5
-#  ———————————————————
-#  6 | 7 | 8 | 9 | 10
-#  ———————————————————
-#  11 | 12 | 13 | 14 | 15
-#  ———————————————————
-#  16 | 17 | 18 | 19 | 20
-#  ———————————————————
-#  21 | 22 | 23 | 24 | 25
-#                                                             1 | 2 | 3 | 4 | 5
-#                                                            ———————————————————
-#                                                            6 | 7 | 8 | 9 | 10
-#                                                            ———————————————————
-#                                                        11 | 12 | 13 | 14 | 15
-#                                                            ———————————————————
-#                                                        16 | 17 | 18 | 19 | 20
-#                                                            ———————————————————
-#                                                        21 | 22 | 23 | 24 | 25
-
-# КОММЕНТАРИЙ: на будущее: помимо большого поля, может понадобиться выводить и другие объекты, например, весовые матрицы для отладки бота
-# для DIM = 3, BOARD = list(map(str, [0, 1.5, 1, 0, 0, 1, 1.5, 1.5, 1]))
-#  0 | 1.5 | 1
-#  ———————————
-#   0 | 0 | 1
-#  ———————————
-#  1.5 | 1.5 | 1
-#                                                                   0 | 1.5 | 1
-#                                                                    ———————————
-#                                                                     0 | 0 | 1
-#                                                                    ———————————
-#                                                                 1.5 | 1.5 | 1
+# BOARD = list(str(n) for n in range(1, 260, 10))
+#     1 |  11 |  21 |  31 |  41
+#  —————————————————————————————
+#    51 |  61 |  71 |  81 |  91
+#  —————————————————————————————
+#   101 | 111 | 121 | 131 | 141
+#  —————————————————————————————
+#   151 | 161 | 171 | 181 | 191
+#  —————————————————————————————
+#   201 | 211 | 221 | 231 | 241
+#                                                    1 |  11 |  21 |  31 |  41
+#                                                 —————————————————————————————
+#                                                   51 |  61 |  71 |  81 |  91
+#                                                 —————————————————————————————
+#                                                  101 | 111 | 121 | 131 | 141
+#                                                 —————————————————————————————
+#                                                  151 | 161 | 171 | 181 | 191
+#                                                 —————————————————————————————
+#                                                  201 | 211 | 221 | 231 | 241
