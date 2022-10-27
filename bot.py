@@ -1,9 +1,10 @@
 """Дополнительный модуль: искусственный интеллект."""
 
+# импорт дополнительных модулей проекта
 from random import choice
-import data
 
-all_turns = {i for i in range(1, 10)}
+# импорт дополнительных модулей проекта
+import data
 
 
 def dumb_bot() -> int:
@@ -19,7 +20,13 @@ def smart_bot() -> int:
     if len(data.TURNS) < 2*data.DIM - 1:
         ew = matrix_add(ew, SM[bot_token_index])
     weights_clear(tw, ew)
-    return index_of_rand_max([cell for row in ew for cell in row])
+    # КОММЕНТАРИЙ: когда все последовательности перекрыты, то ни одна не вносит вклад в весовую матрицу, в результате получаем матрицу принятия решений, заполненную только нолями
+    if any(vectorization(ew)):
+        # КОММЕНТАРИЙ: пока в матрице принятия решений есть хотя бы одно ненулевое значение вычисляем индекс максимального
+        return index_of_rand_max(vectorization(ew))
+    else:
+        # КОММЕНТАРИЙ: если все ноли, то уже пофиг — делаем случайный ход
+        return dumb_bot()
 
 
 def weights_tokens(token_index: int) -> data.Matrix:
@@ -65,6 +72,11 @@ def weights_clear(tokensweights: data.Matrix,
         for j in data.RANGE:
             if tokensweights[i][j]:
                 solvingweights[i][j] = 0
+
+
+def vectorization(matrix: data.Matrix) -> data.Series:
+    """Возвращает плоскую последовательность, полученную в результате преобразования переданной матрицы."""
+    return [cell for row in matrix for cell in row]
 
 
 def matricization(sequence: data.Series) -> data.Matrix:
@@ -182,6 +194,7 @@ SM = (
     calc_sm_cross(),
     calc_sm_zero()
 )
+all_turns = set(range(1, data.DIM**2+1))
 
 
 if __name__ == '__main__':
