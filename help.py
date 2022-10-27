@@ -1,4 +1,6 @@
 """Дополнительный модуль: справка и обучение."""
+
+# импорт дополнительных модулей проекта
 import data
 import functions
 
@@ -13,5 +15,5 @@ def show_help() -> None:
     print(f"Желаем удачи в игре {data.APP_TITLE}!")
 
 
-# show_help()
-
+if __name__ == '__main__':
+    show_help()

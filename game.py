@@ -1,8 +1,10 @@
 """Дополнительный модуль: партия."""
-import bot
-# импорт дополнительных модулей
+
+# импорт дополнительных модулей проекта
 import data
 import functions
+import bot
+
 
 def human_turn() -> int:
     """Запрашивает у игрока и возвращает корректную координату ячейки поля для текущего хода."""
@@ -15,12 +17,12 @@ def human_turn() -> int:
         if curr_turn.isdecimal():
             curr_turn = int(curr_turn)
         else:
-            print(f"Вы ввели неверный номер ячейки для хода, введите от 1 до {data.DIM ** 2}!")
+            print(f"Вы ввели неверный номер ячейки для хода, введите от 1 до {data.DIM**2}!")
             continue
-        if curr_turn < 1 or curr_turn > data.DIM ** 2:
-            print(f"Вы ввели неверный номер ячейки для хода, введите от 1 до {data.DIM ** 2}!")
+        if curr_turn < 1 or curr_turn > data.DIM**2:
+            print(f"Вы ввели неверный номер ячейки для хода, введите от 1 до {data.DIM**2}!")
             continue
-        if data.BOARD[curr_turn - 1] != '':
+        if data.BOARD[curr_turn-1] != '':
             print(f"Такой ход уже был, введите другой!")
             continue
         else:
@@ -42,6 +44,7 @@ def check_win() -> bool:
         nonlocal win
         if all(line) and len(set(line)) == 1:
             win = True
+
     for i in data.RANGE:
         row = data.BOARD[i * data.DIM: (i + 1) * data.DIM]
         check_line(row)
@@ -76,7 +79,7 @@ def game() -> data.Score | None:
 
         token_index = abs(token_index - 1)
         turns_cnt += 1
-        if turns_cnt > data.DIM ** 2 and not check_win():
+        if turns_cnt > data.DIM**2 and not check_win():
             print(f"Ничья!\n")
             return {data.PLAYERS[0]: {'ties': 1, 'training': False}}, \
                    {data.PLAYERS[1]: {'ties': 1, 'training': False}}
@@ -84,7 +87,6 @@ def game() -> data.Score | None:
 
 # тесты
 if __name__ == '__main__':
-    pass
-    # print(functions.draw_board(data.BOARD))
-    # print(check_win())
-    # print(human_turn())
+    print(functions.draw_board(data.BOARD))
+    print(check_win())
+    print(human_turn())

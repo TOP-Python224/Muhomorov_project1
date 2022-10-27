@@ -1,10 +1,13 @@
 """Дополнительный модуль: вспомогательные функции."""
 
+# импорт из стандартной библиотеки
 from configparser import ConfigParser
 from shutil import get_terminal_size
-import data
-import functions
 
+# импорт дополнительных модулей проекта
+import data
+
+# переменные модуля
 players_file = './players.ini'
 saves_file = './saves.ini'
 
@@ -21,7 +24,6 @@ def read_ini() -> bool:
     saves = ConfigParser()
     saves.read(saves_file, encoding='utf-8')
     for section in saves.sections():
-        # ИСПОЛЬЗОВАТЬ: конвертацию в кортеж
         players = tuple(section.split(';'))
         turns = [int(i) for i in saves[section]['turns'].split(',')]
         data.SAVES[players] = turns
@@ -49,7 +51,6 @@ def write_ini() -> None:
 
 def get_player_name() -> None:
     """Запрашивает имя игрока и проверяет присутствие этого имени в глобальной переменной статистики, добавляет имя в глобальную переменную текущих игроков."""
-
     while True:
         player_name = input(f"Введите имя игрока{data.PROMPT}")
         if player_name == '':
@@ -64,7 +65,7 @@ def get_player_name() -> None:
         else:
             if player_name not in data.STATS:
                 data.STATS[player_name] = {'wins': 0, 'fails': 0, 'ties': 0, 'training': True}
-                functions.write_ini()
+                write_ini()
                 data.PLAYERS.append(player_name)
             else:
                 data.PLAYERS.append(player_name)
@@ -73,17 +74,19 @@ def get_player_name() -> None:
 def draw_board(board: list[str], align_right: bool = False) -> str:
     """Формирует и возвращает строку, содержащую псевдографическое изображение игрового поля со сделанными ходами."""
     max_width = len(max(board, key=lambda elem: len(elem)))
-    centered_board = [elem.center(max_width + 2)
-                      for elem in
-                      [' ' * (max_width - len(i)) + i for i in board]]
-    h_line = '—' * (data.DIM * (max_width + 2) + data.DIM - 1) + '\n'
+    centered_board = [
+        elem.center(max_width + 2)
+        for elem in
+        [' '*(max_width - len(i)) + i for i in board]
+    ]
+    h_line = '—'*(data.DIM*(max_width+2) + data.DIM - 1) + '\n'
     result = ''
     if align_right:
         align = get_terminal_size()[0] - 2
     else:
         align = len(h_line) + 1
     for i in data.RANGE:
-        row = '|'.join(centered_board[i * data.DIM: (i + 1) * data.DIM])
+        row = '|'.join(centered_board[i*data.DIM: (i+1)*data.DIM])
         result += f"{row.rjust(align - 1)}\n"
     h_line = f"\n{h_line.rjust(align)}"
     result = result.rstrip('\n').replace('\n', h_line)
@@ -99,7 +102,7 @@ def update_stats(score: data.Score) -> None:
                     data.STATS[player][result] += results[result]
                     data.STATS[player]['training'] = False
     data.SAVES.pop(tuple(data.PLAYERS))
-    functions.write_ini()
+    write_ini()
 
 
 def show_stats() -> None:
@@ -111,14 +114,14 @@ def show_stats() -> None:
 
 
 if __name__ == '__main__':
-    pass
     # functions.read_ini()
     # get_player_name()
     # read_ini()
     # print(draw_board(data.BOARD))
     # print(draw_board(data.BOARD, True))
-    # get_player_name()
+    get_player_name()
     # write_ini()
+
 
 # stdout:
 # BOARD = list(str(n) for n in range(1, 260, 10))

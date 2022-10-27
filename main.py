@@ -1,13 +1,15 @@
 """Модуль верхнего уровня: для учебного проекта Крестики-Нолики."""
 
+# импорт из стандартной библиотеки
+from importlib import reload
 
-# импорт дополнительных модулей
+# импорт дополнительных модулей проекта
 import data
 import functions
 import help
 import gameset
 import game
-from importlib import reload
+
 
 # 1. Чтение данных из текстовых файлов данных
 # 2. ЕСЛИ первый запуск:

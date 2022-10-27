@@ -1,4 +1,6 @@
 """Дополнительный модуль: настройка партии."""
+
+# импорт дополнительных модулей проекта
 import data
 import functions
 
@@ -49,7 +51,6 @@ def get_turn_order() -> None:
         break
 
 
-
 def check_training() -> bool:
     """Проверяет, является ли данная партия первой для любого из игроков."""
     training = False
@@ -59,6 +60,7 @@ def check_training() -> bool:
     return training
 
 
-# game_mode()
-# functions.read_ini()
-# print(check_training())
+if __name__ == '__main__':
+    game_mode()
+    functions.read_ini()
+    print(check_training())
