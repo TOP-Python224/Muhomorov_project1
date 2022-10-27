@@ -92,15 +92,13 @@ def draw_board(board: list[str], align_right: bool = False) -> str:
 
 def update_stats(score: data.Score) -> None:
     """Обновляет глобальную переменную статистики в соответствии с результатом завершённой партии."""
-    remove_saves = ()
     for elem in score:
         for player in elem:
-            remove_saves += player,
             for results in elem.values():
                 for result in results:
                     data.STATS[player][result] += results[result]
                     data.STATS[player]['training'] = False
-    data.SAVES.pop(remove_saves)
+    data.SAVES.pop(tuple(data.PLAYERS))
     functions.write_ini()
 
 
