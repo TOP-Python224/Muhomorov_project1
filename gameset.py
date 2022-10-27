@@ -27,16 +27,12 @@ def get_bot_level() -> None:
             print('Вы ввели некорректный уровень сложности игры!')
             continue
         else:
-            if level == '1':
-                data.PLAYERS.append('#1')
-                if '#1' not in data.STATS:
-                    data.STATS['#1'] = {'wins': 0, 'fails': 0, 'ties': 0, 'training': False}
-                    functions.write_ini()
-            else:
-                data.PLAYERS.append('#2')
-                if '#2' not in data.STATS:
-                    data.STATS['#2'] = {'wins': 0, 'fails': 0, 'ties': 0, 'training': False}
-                    functions.write_ini()
+            data.BOT_LEVEL = int(level)
+            level = '#' + level
+            data.PLAYERS.append(level)
+            if level not in data.STATS:
+                data.STATS[level] = {'wins': 0, 'fails': 0, 'ties': 0, 'training': False}
+            functions.write_ini()
             break
 
 

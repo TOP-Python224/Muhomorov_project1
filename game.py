@@ -4,7 +4,7 @@ import bot
 import data
 import functions
 
-def human_turn(training: bool = False) -> int:
+def human_turn() -> int:
     """Запрашивает у игрока и возвращает корректную координату ячейки поля для текущего хода."""
     while True:
         curr_turn = input(f"Введите номер ячейки для хода{data.PROMPT}")
@@ -28,8 +28,9 @@ def human_turn(training: bool = False) -> int:
             return curr_turn - 1
 
 
-def bot_turn(token_index: int, training: bool = False) -> int:
+def bot_turn() -> int:
     """Вычисляет и возвращает координату ячейки поля для текущего хода бота в зависимости от сложности."""
+    return [bot.dumb_bot, bot.smart_bot][data.BOT_LEVEL - 1]()
 
 
 def check_win() -> bool:
@@ -59,7 +60,7 @@ def game() -> data.Score | None:
     turns = [human_turn, human_turn]
     for player in data.PLAYERS:
         if player.startswith('#'):
-            turns[data.PLAYERS.index(player)] = bot.dump_bot
+            turns[data.PLAYERS.index(player)] = bot_turn
     while True:
         curr_turn = turns[token_index]()
         data.BOARD[curr_turn] = data.TOKENS[token_index]
@@ -67,7 +68,7 @@ def game() -> data.Score | None:
         data.SAVES[tuple(data.PLAYERS)] = data.TURNS
         functions.write_ini()
         print(f"\n{functions.draw_board(data.BOARD, token_index)}\n")
-        # print(data.SAVES)
+        print(f"{curr_turn = }\n{data.BOARD = }\n{data.TURNS = }\n")
         if check_win():
             print(f"Игрок {data.PLAYERS[token_index]} победил!\n")
             return {data.PLAYERS[token_index]: {'wins': 1, 'training': False}}, \
