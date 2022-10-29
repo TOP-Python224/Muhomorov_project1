@@ -16,20 +16,24 @@ import game
 if functions.read_ini():
     # вывод раздела помощи
     help.show_help()
-
 # 3. Запрос имени игрока
 functions.get_player_name()
+# print(data.STATS)
+
 
 # суперцикл
 while True:
     # 4. Ожидание ввода команды
+    gameset.check_training()
+    print(['', f"\nДоступны следующие команды:\n{help.show_command()}"][data.TRAINING])
     command = input(f"Введите команду{data.PROMPT}")
 
     # new
     if command in data.COMMANDS['начать новую партию']:
-        # 5. Запрос режима игры:
         FIRST_PLAYER = data.PLAYERS[0]
+        # 5. Запрос режима игры:
         gameset.game_mode()
+        gameset.check_training()
         # партия
         res = game.game()
         # 19. Удаление автосохранения и обновление статистики
@@ -37,7 +41,19 @@ while True:
         reload(data)
         functions.read_ini()
         data.PLAYERS = [FIRST_PLAYER]
-
+    if command in data.COMMANDS['новый игрок']:
+        reload(data)
+        functions.read_ini()
+        functions.get_player_name()
+    if command in data.COMMANDS['восстановить игру']:
+        FIRST_PLAYER = data.PLAYERS[0]
+        functions.load()
+        res = game.game(loaded=True)
+        functions.update_stats(res)
+        data.PLAYERS = [FIRST_PLAYER]
+    if command in data.COMMANDS['включить режим обучения']:
+        data.TRAINING = True
+        help.show_help()
     elif command in data.COMMANDS['отобразить результаты']:
         functions.show_stats()
     elif command in data.COMMANDS['выйти из игры']:

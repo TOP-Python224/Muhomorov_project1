@@ -6,6 +6,8 @@ from shutil import get_terminal_size
 
 # импорт дополнительных модулей проекта
 import data
+import game
+import help
 
 # переменные модуля
 players_file = './players.ini'
@@ -64,12 +66,14 @@ def get_player_name() -> None:
             continue
         else:
             if player_name not in data.STATS:
-                data.STATS[player_name] = {'wins': 0, 'fails': 0, 'ties': 0, 'training': True}
+                data.STATS[player_name] = {'wins': 0, 'fails': 0, 'ties': 0, 'training': 'True'}
                 write_ini()
                 data.PLAYERS.append(player_name)
+                help.show_help()
             else:
                 data.PLAYERS.append(player_name)
             break
+
 
 def draw_board(board: list[str], align_right: bool = False) -> str:
     """Формирует и возвращает строку, содержащую псевдографическое изображение игрового поля со сделанными ходами."""
@@ -93,6 +97,16 @@ def draw_board(board: list[str], align_right: bool = False) -> str:
     return result
 
 
+def print_tutorial(curr_turn: int, token_index: int, align_right: bool = False) -> str:
+    """Формирует и возвращает строку, с подсказкой о текущем ходе, необходимой для режима обучения."""
+    result = f"Игрок '{data.PLAYERS[token_index]}' сделал ход '{data.TOKENS[token_index]}' на ячейку '{curr_turn + 1}'"
+    if align_right:
+        align = get_terminal_size()[0] - 3
+    else:
+        align = len(result)
+    return result.rjust(align)
+
+
 def update_stats(score: data.Score) -> None:
     """Обновляет глобальную переменную статистики в соответствии с результатом завершённой партии."""
     for elem in score:
@@ -113,13 +127,73 @@ def show_stats() -> None:
               f"вничью {data.STATS[player]['ties']} раз.")
 
 
+def load() -> None:
+    """Загружает сохраненную партию."""
+    saves_slots = load_slots()
+    slot = get_slot(saves_slots)
+    load_saves(slot, saves_slots)
+
+
+def load_slots() -> dict:
+    """Возвращает словарь с доступными сохраненными партиями для текущего игрока."""
+    saves_slots = {}
+    i = 1
+    if data.SAVES:
+        for k, v in data.SAVES.items():
+            if data.PLAYERS[0] in k:
+                saves_slots[i] = k, v
+                i += 1
+        return saves_slots
+
+
+def get_slot(saves_slots: dict) -> int:
+    """Запрашивает и возвращает номер сохраненной партии из выведенного списка."""
+    if saves_slots:
+        print(f"\nДоступны следующие сохраненные партии:")
+        for k, v in saves_slots.items():
+            print(k, v[0], sep=' = ')
+    else:
+        print('Нет доступных сохранений!')
+    while True:
+        slot = input(f"\nВведите номер сохраненной партии{data.PROMPT}")
+        if slot.isdecimal():
+            slot = int(slot)
+            if slot in saves_slots:
+                return slot
+            else:
+                print('Вы ввели некорректный номер сохраненной партии!')
+        else:
+            print('Вы ввели некорректный номер сохраненной партии')
+
+
+def load_saves(slot: int, saves_slots: dict) -> None:
+    """Загружает данные выбранной партии в глобальные переменные, выводит 2 последних хода."""
+    data.PLAYERS = [*saves_slots[slot][0]]
+    data.TURNS = saves_slots[slot][1]
+    token_index = 0
+    if len(data.TURNS) < 2:
+        print('Сохраненные ходы не отображаются, т.к. сохранено менее 2-х ходов!')
+        need_draw = []
+    else:
+        need_draw = data.TURNS[-2:]
+    for turn in data.TURNS:
+        data.BOARD[turn - 1] = data.TOKENS[token_index]
+        if turn in need_draw:
+            print(f"{print_tutorial(turn - 1, token_index, token_index)}\n")
+            print(f"{draw_board(data.BOARD, token_index)}\n")
+        token_index = abs(token_index - 1)
+
+
 if __name__ == '__main__':
+    pass
+    # read_ini()
+    load()
     # functions.read_ini()
     # get_player_name()
     # read_ini()
     # print(draw_board(data.BOARD))
     # print(draw_board(data.BOARD, True))
-    get_player_name()
+    # get_player_name()
     # write_ini()
 
 

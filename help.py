@@ -15,5 +15,19 @@ def show_help() -> None:
     print(f"Желаем удачи в игре {data.APP_TITLE}!")
 
 
+def show_command() -> str:
+    """Выдает список доступных команд."""
+    result = ''
+    with open('./help.txt', encoding='utf-8') as help_text:
+        for line in help_text:
+            if line.startswith('\''):
+                result += line
+    return result
+
+
 if __name__ == '__main__':
-    show_help()
+    # show_help()
+    show_command()
+    pass
+    # show_help()
+    # show_command()
