@@ -6,7 +6,6 @@ from shutil import get_terminal_size
 
 # импорт дополнительных модулей проекта
 import data
-import game
 import help
 
 # переменные модуля
@@ -128,7 +127,7 @@ def show_stats() -> None:
 
 
 def load() -> None:
-    """Загружает сохраненную партию."""
+    """Загружает выбранную сохраненную партию."""
     saves_slots = load_slots()
     slot = get_slot(saves_slots)
     load_saves(slot, saves_slots)
@@ -182,38 +181,3 @@ def load_saves(slot: int, saves_slots: dict) -> None:
             print(f"{print_tutorial(turn - 1, token_index, token_index)}\n")
             print(f"{draw_board(data.BOARD, token_index)}\n")
         token_index = abs(token_index - 1)
-
-
-if __name__ == '__main__':
-    pass
-    # read_ini()
-    load()
-    # functions.read_ini()
-    # get_player_name()
-    # read_ini()
-    # print(draw_board(data.BOARD))
-    # print(draw_board(data.BOARD, True))
-    # get_player_name()
-    # write_ini()
-
-
-# stdout:
-# BOARD = list(str(n) for n in range(1, 260, 10))
-#     1 |  11 |  21 |  31 |  41
-#  —————————————————————————————
-#    51 |  61 |  71 |  81 |  91
-#  —————————————————————————————
-#   101 | 111 | 121 | 131 | 141
-#  —————————————————————————————
-#   151 | 161 | 171 | 181 | 191
-#  —————————————————————————————
-#   201 | 211 | 221 | 231 | 241
-#                                                    1 |  11 |  21 |  31 |  41
-#                                                 —————————————————————————————
-#                                                   51 |  61 |  71 |  81 |  91
-#                                                 —————————————————————————————
-#                                                  101 | 111 | 121 | 131 | 141
-#                                                 —————————————————————————————
-#                                                  151 | 161 | 171 | 181 | 191
-#                                                 —————————————————————————————
-#                                                  201 | 211 | 221 | 231 | 241

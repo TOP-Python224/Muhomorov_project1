@@ -27,13 +27,6 @@ def human_turn() -> int:
             print(f"Такой ход уже был, введите другой!")
             continue
         else:
-            remove_reverse = tuple(list(reversed(data.PLAYERS)))
-            # print(data.SAVES)
-            # print(remove_reverse)
-            if remove_reverse in data.SAVES:
-                data.SAVES.pop(remove_reverse)
-                # print(data.SAVES)
-                # print('OK!!!!!')
             return curr_turn - 1
 
 
@@ -44,27 +37,21 @@ def bot_turn() -> int:
 
 def check_win() -> bool:
     """Проверяет текущую партию на наличие победной комбинации."""
-    win = False
-
-    def check_line(line: list[str]):
-        """Проверяет наличие выигрышной комбинации в каждой строке, каждом столбце и каждой диагонали."""
-        nonlocal win
-        if all(line) and len(set(line)) == 1:
-            win = True
-
+    all_lines = []
     for i in data.RANGE:
-        row = data.BOARD[i*data.DIM: (i+1) * data.DIM]
-        check_line(row)
-        column = data.BOARD[i::data.DIM]
-        check_line(column)
+        all_lines += [data.BOARD[i*data.DIM: (i+1) * data.DIM]]
+        all_lines += [data.BOARD[i::data.DIM]]
     diagonals = data.BOARD[::data.DIM+1], data.BOARD[data.DIM-1: -1: data.DIM-1]
-    for diagonal in diagonals:
-        check_line(diagonal)
-    return win
+    all_lines += diagonals
+    for line in all_lines:
+        if all(line) and len(set(line)) == 1:
+            return True
+    return False
 
 
 def game(loaded: bool = False) -> data.Score | None:
     """Управляет игровым процессом для каждой новой или загруженной партии."""
+    remove_reverse = tuple(list(reversed(data.PLAYERS)))
     if loaded:
         turns_cnt = len(data.TURNS)
         token_index = turns_cnt % 2
@@ -81,6 +68,8 @@ def game(loaded: bool = False) -> data.Score | None:
         data.BOARD[curr_turn] = data.TOKENS[token_index]
         data.TURNS.append(curr_turn+1)
         data.SAVES[tuple(data.PLAYERS)] = data.TURNS
+        if len(data.TURNS) == 1 and remove_reverse in data.SAVES:
+            data.SAVES.pop(remove_reverse)
         functions.write_ini()
         print(f"\n{functions.draw_board(data.BOARD, token_index)}\n")
         print(f"{['', functions.print_tutorial(curr_turn, token_index, token_index)][data.TRAINING]}")
@@ -94,10 +83,3 @@ def game(loaded: bool = False) -> data.Score | None:
             print(f"Ничья!\n")
             return {data.PLAYERS[0]: {'ties': 1, 'training': False}}, \
                    {data.PLAYERS[1]: {'ties': 1, 'training': False}}
-
-
-# тесты
-if __name__ == '__main__':
-    print(functions.draw_board(data.BOARD))
-    print(check_win())
-    print(human_turn())

@@ -7,27 +7,22 @@ import functions
 
 def show_help() -> None:
     """Выводит в stdout раздел помощи."""
+    result = ''
     print(f"\n{data.APP_TITLE}\n")
     with open('./help.txt', encoding='utf-8') as help_text:
         for line in help_text:
-            print(line, end='')
-    print(f"\n{functions.draw_board([str(i) for i in range(1, data.DIM ** 2 + 1)])}\n")
+            result += line
+    result = result.replace('###', show_commands())
+    print(f"{result}")
+    print(f"{functions.draw_board([str(i) for i in range(1, data.DIM ** 2 + 1)])}\n")
     print(f"Желаем удачи в игре {data.APP_TITLE}!")
 
 
-def show_command() -> str:
+def show_commands() -> str:
     """Выдает список доступных команд."""
     result = ''
-    with open('./help.txt', encoding='utf-8') as help_text:
-        for line in help_text:
-            if line.startswith('\''):
-                result += line
+    for k, v in data.COMMANDS.items():
+        result += f"{list(v)} - {k},\n"
+    result = result.rstrip(',\n')
+    result += '.'
     return result
-
-
-if __name__ == '__main__':
-    # show_help()
-    show_command()
-    pass
-    # show_help()
-    # show_command()

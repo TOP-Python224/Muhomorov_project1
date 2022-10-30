@@ -57,8 +57,3 @@ def check_training():
     for player in data.PLAYERS:
         if data.STATS[player]['training'] == 'True':
             data.TRAINING = True
-
-
-if __name__ == '__main__':
-    game_mode()
-    functions.read_ini()

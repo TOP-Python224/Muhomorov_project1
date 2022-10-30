@@ -195,7 +195,3 @@ SM = (
     calc_sm_zero()
 )
 all_turns = set(range(1, data.DIM**2+1))
-
-
-if __name__ == '__main__':
-    pass
