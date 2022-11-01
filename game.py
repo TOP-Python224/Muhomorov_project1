@@ -11,17 +11,19 @@ def human_turn() -> int:
     while True:
         curr_turn = input(f"Введите номер ячейки для хода{data.PROMPT}")
         if curr_turn == '':
+            # ОТВЕТИТЬ: первое условие избыточно, считаю
             if len(data.PLAYERS) == 2 and len(data.TURNS) > 0:
                 data.SAVES[tuple(data.PLAYERS)] = data.TURNS
                 functions.write_ini()
+            # ИСПРАВИТЬ: надо бы выйти из игры, зачем запрашивать всё новый и новый ход — это же должно быть досрочное завершение партии
             continue
         if curr_turn.isdecimal():
             curr_turn = int(curr_turn)
         else:
-            print(f"Вы ввели неверный номер ячейки для хода, введите от 1 до {data.DIM**2}!")
+            print(f"Вы ввели неверный номер ячейки для хода, введите от 1 до {data.CELLS}!")
             continue
-        if curr_turn < 1 or curr_turn > data.DIM**2:
-            print(f"Вы ввели неверный номер ячейки для хода, введите от 1 до {data.DIM**2}!")
+        if curr_turn < 1 or curr_turn > data.CELLS:
+            print(f"Вы ввели неверный номер ячейки для хода, введите от 1 до {data.CELLS}!")
             continue
         if data.BOARD[curr_turn-1] != '':
             print(f"Такой ход уже был, введите другой!")
@@ -39,9 +41,9 @@ def check_win() -> bool:
     """Проверяет текущую партию на наличие победной комбинации."""
     all_lines = []
     for i in data.RANGE:
-        all_lines += [data.BOARD[i*data.DIM: (i+1) * data.DIM]]
+        all_lines += [data.BOARD[i*data.DIM:(i+1)*data.DIM]]
         all_lines += [data.BOARD[i::data.DIM]]
-    diagonals = data.BOARD[::data.DIM+1], data.BOARD[data.DIM-1: -1: data.DIM-1]
+    diagonals = data.BOARD[::data.DIM+1], data.BOARD[data.DIM-1:-1:data.DIM-1]
     all_lines += diagonals
     for line in all_lines:
         if all(line) and len(set(line)) == 1:
@@ -51,13 +53,14 @@ def check_win() -> bool:
 
 def game(loaded: bool = False) -> data.Score | None:
     """Управляет игровым процессом для каждой новой или загруженной партии."""
-    remove_reverse = tuple(list(reversed(data.PLAYERS)))
+    remove_reverse = tuple(reversed(data.PLAYERS))
     if loaded:
         turns_cnt = len(data.TURNS)
         token_index = turns_cnt % 2
     else:
         turns_cnt = 1
         token_index = 0
+    # КОММЕНТАРИЙ: тоже хорошее решение, одобряю
     turns = [human_turn, human_turn]
     for player in data.PLAYERS:
         if player.startswith('#'):
@@ -67,6 +70,7 @@ def game(loaded: bool = False) -> data.Score | None:
         curr_turn = turns[token_index]()
         data.BOARD[curr_turn] = data.TOKENS[token_index]
         data.TURNS.append(curr_turn+1)
+        # ИСПРАВИТЬ: полагаю, коли так, то лучше ещё на инициализации сделать data.PLAYERS кортежем, а не списком, и не выполнять лишнее преобразование на каждой итерации
         data.SAVES[tuple(data.PLAYERS)] = data.TURNS
         if len(data.TURNS) == 1 and remove_reverse in data.SAVES:
             data.SAVES.pop(remove_reverse)
@@ -79,7 +83,7 @@ def game(loaded: bool = False) -> data.Score | None:
                    {data.PLAYERS[abs(token_index-1)]: {'fails': 1, 'training': False}}
         token_index = abs(token_index-1)
         turns_cnt += 1
-        if turns_cnt > data.DIM**2 and not check_win():
+        if turns_cnt > data.CELLS and not check_win():
             print(f"Ничья!\n")
             return {data.PLAYERS[0]: {'ties': 1, 'training': False}}, \
                    {data.PLAYERS[1]: {'ties': 1, 'training': False}}

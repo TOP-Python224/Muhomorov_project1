@@ -28,9 +28,8 @@ while True:
     print(['', f"\nДоступны следующие команды:\n{help.show_commands()}"][data.TRAINING])
     command = input(f"Введите команду{data.PROMPT}")
 
-    # new
     if command in data.COMMANDS['начать новую партию']:
-        FIRST_PLAYER = data.PLAYERS[0]
+        first_player = data.PLAYERS[0]
         # 5. Запрос режима игры:
         gameset.game_mode()
         gameset.check_training()
@@ -40,23 +39,33 @@ while True:
         functions.update_stats(res)
         reload(data)
         functions.read_ini()
-        data.PLAYERS = [FIRST_PLAYER]
+        data.PLAYERS = [first_player]
+
     if command in data.COMMANDS['новый игрок']:
+        # ОТВЕТИТЬ: зачем перезагружать модуль перед добавлением нового игрока?
         reload(data)
         functions.read_ini()
         functions.get_player_name()
+        # ДОБАВИТЬ: запись значения обновлённой глобальной переменной в файл
+
     if command in data.COMMANDS['восстановить игру']:
-        FIRST_PLAYER = data.PLAYERS[0]
+        first_player = data.PLAYERS[0]
         functions.load()
         res = game.game(loaded=True)
         functions.update_stats(res)
-        data.PLAYERS = [FIRST_PLAYER]
+        data.PLAYERS = [first_player]
+
     if command in data.COMMANDS['включить режим обучения']:
         data.TRAINING = True
         help.show_help()
-    elif command in data.COMMANDS['отобразить результаты']:
+
+    if command in data.COMMANDS['отобразить результаты']:
         functions.show_stats()
-    elif command in data.COMMANDS['выйти из игры']:
+
+    if command in data.COMMANDS['изменить размер поля']:
+        functions.change_dimension(get_from_input=True)
+
+    if command in data.COMMANDS['выйти из игры']:
         break
 
 # 21. Обработка завершения работы приложения

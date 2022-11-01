@@ -5,11 +5,12 @@ from random import choice
 
 # импорт дополнительных модулей проекта
 import data
+import functions
 
 
 def dumb_bot() -> int:
     """Возвращает случайный ход из доступного диапазона ходов."""
-    return choice(list(all_turns - set(data.TURNS))) - 1
+    return choice(list(set(data.ALL_TURNS) - set(data.TURNS))) - 1
 
 
 def smart_bot() -> int:
@@ -18,14 +19,11 @@ def smart_bot() -> int:
     tw = weights_tokens(bot_token_index)
     ew = weights_empty(tw)
     if len(data.TURNS) < 2*data.DIM - 1:
-        ew = matrix_add(ew, SM[bot_token_index])
+        ew = matrix_add(ew, data.BOT_SM[bot_token_index])
     weights_clear(tw, ew)
-    # КОММЕНТАРИЙ: когда все последовательности перекрыты, то ни одна не вносит вклад в весовую матрицу, в результате получаем матрицу принятия решений, заполненную только нолями
     if any(vectorization(ew)):
-        # КОММЕНТАРИЙ: пока в матрице принятия решений есть хотя бы одно ненулевое значение вычисляем индекс максимального
         return index_of_rand_max(vectorization(ew))
     else:
-        # КОММЕНТАРИЙ: если все ноли, то уже пофиг — делаем случайный ход
         return dumb_bot()
 
 
@@ -132,66 +130,16 @@ def index_of_rand_max(series: data.Series) -> int:
     return choice([i for i, v in enumerate(series) if v == m])
 
 
-def calc_sm_cross() -> data.Matrix:
-    """Вычисляет и возвращает начальную матрицу стратегии крестика."""
-    sm_cross = [[0]*data.DIM for _ in data.RANGE]
-    half, rem = divmod(data.DIM, 2)
-    diag = list(range(1, half+1)) + list(range(half+rem, 0, -1))
-    for i in data.RANGE:
-        sm_cross[i][i] = diag[i]
-        sm_cross[i][-i-1] = diag[i]
-    return sm_cross
-
-
-def calc_sm_zero() -> data.Matrix:
-    """Вычисляет и возвращает начальную матрицу стратегии нолика."""
-
-    def triangle_desc(n: int, start: int) -> data.Matrix:
-        """Генерирует и возвращает верхне-треугольную по побочной диагонали матрицу, заполняемую параллельно побочной диагонали значениями по убыванию."""
-        flat = []
-        indexes = range(n)
-        for i in indexes:
-            flat += [m if m > 0 else 0 for m in range(start-i, -start, -1)][:n]
-        matrix = [flat[i*n:(i+1)*n] for i in indexes]
-        if n > 2:
-            for i in indexes:
-                for j in indexes:
-                    if i > n-j-1:
-                        matrix[i][j] = 0
-        return matrix
-
-    def rot90(matrix: data.Matrix) -> data.Matrix:
-        """Возвращает "повёрнутую" на 90° матрицу."""
-        indexes = range(len(matrix))
-        matrix = [[matrix[j][i] for j in indexes] for i in indexes]
-        for i in indexes:
-            matrix[i] = matrix[i][::-1]
-        return matrix
-
-    half, rem = divmod(data.DIM, 2)
-    quarter = triangle_desc(half, half+rem)
-    if data.DIM > 6:
-        for i in range(half):
-            for j in range(half):
-                if i == half-j-1:
-                    if i != j:
-                        quarter[i][j] -= 1
-                if i > half-j:
-                    quarter[i][i] = half - i - (rem+1)%2
-    m1 = quarter
-    m2 = rot90(m1)
-    m3 = rot90(m2)
-    m4 = rot90(m3)
-    top, bot = [], []
-    for i in range(half):
-        top += [m1[i] + [0]*rem + m2[i]]
-        bot += [m4[i] + [0]*rem + m3[i]]
-    return top + [[0]*data.DIM]*rem + bot
-
-
 # переменные модуля
-SM = (
-    calc_sm_cross(),
-    calc_sm_zero()
+data.BOT_SM = (
+    functions.calc_sm_cross(),
+    functions.calc_sm_zero()
 )
-all_turns = set(range(1, data.DIM**2+1))
+
+
+if __name__ == '__main__':
+    functions.change_dimension(7)
+    smc = functions.calc_sm_cross()
+    smz = functions.calc_sm_zero()
+    print(functions.draw_board(vectorization(smc)), end='\n\n')
+    print(functions.draw_board(vectorization(smz)), end='\n\n')

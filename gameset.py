@@ -41,18 +41,19 @@ def get_bot_level() -> None:
 def get_turn_order() -> None:
     """Запрашивает текущего активного игрока о его выборе токена для партии, при необходимости меняет порядок имён в глобальной переменной текущих игроков."""
     while True:
-        token = input(f"Введите каким знаком будете играть: X или O{data.PROMPT}")
+        token = input(f"Введите каким знаком будете играть: {' или '.join(data.TOKENS)}{data.PROMPT}")
         if token.upper() not in data.TOKENS:
             print('Вы ввели некорректный знак!')
             continue
         else:
+            # ИСПРАВИТЬ:
             if token.upper() == 'O':
                 data.PLAYERS.reverse()
         print()
         break
 
 
-def check_training():
+def check_training() -> None:
     """Проверяет, является ли данная партия первой для любого из игроков и устанавливает глобальную переменную. """
     for player in data.PLAYERS:
         if data.STATS[player]['training'] == 'True':

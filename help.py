@@ -14,7 +14,7 @@ def show_help() -> None:
             result += line
     result = result.replace('###', show_commands())
     print(f"{result}")
-    print(f"{functions.draw_board([str(i) for i in range(1, data.DIM ** 2 + 1)])}\n")
+    print(f"{functions.draw_board(data.ALL_TURNS)}\n")
     print(f"Желаем удачи в игре {data.APP_TITLE}!")
 
 
@@ -26,3 +26,7 @@ def show_commands() -> str:
     result = result.rstrip(',\n')
     result += '.'
     return result
+
+
+if __name__ == '__main__':
+    show_help()
