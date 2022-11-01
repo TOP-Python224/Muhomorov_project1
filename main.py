@@ -38,6 +38,10 @@ while True:
         # 19. Удаление автосохранения и обновление статистики
         functions.update_stats(res)
         reload(data)
+        data.BOT_SM = (
+            functions.calc_sm_cross(),
+            functions.calc_sm_zero()
+        )
         functions.read_ini()
         data.PLAYERS = [first_player]
 
