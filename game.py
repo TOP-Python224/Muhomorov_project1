@@ -12,10 +12,13 @@ def human_turn() -> int:
         curr_turn = input(f"Введите номер ячейки для хода{data.PROMPT}")
         if curr_turn == '':
             # ОТВЕТИТЬ: первое условие избыточно, считаю
-            if len(data.PLAYERS) == 2 and len(data.TURNS) > 0:
+            # Ловил глюк, связанный с этим, был только 1 игрок в списке, воссоздать не удалось, удаляю.
+            if len(data.TURNS) > 0:
+            # if len(data.PLAYERS) == 2 and len(data.TURNS) > 0:
                 data.SAVES[tuple(data.PLAYERS)] = data.TURNS
                 functions.write_ini()
             # ИСПРАВИТЬ: надо бы выйти из игры, зачем запрашивать всё новый и новый ход — это же должно быть досрочное завершение партии
+            # Я понял ТЗ так, что при вводе пустого хода должно производиться автосохранение. От себя добавил проверку, что хотя бы 1 ход был, чтобы не сохранять пустые данные. Опять же игрок может по ошибке нажать Enter, или случайно дваджы нажать после своего хода, если после этого сразу завершать игру, то какой-то недружественный интерфейс получается.
             continue
         if curr_turn.isdecimal():
             curr_turn = int(curr_turn)
@@ -54,6 +57,7 @@ def check_win() -> bool:
 def game(loaded: bool = False) -> data.Score | None:
     """Управляет игровым процессом для каждой новой или загруженной партии."""
     remove_reverse = tuple(reversed(data.PLAYERS))
+    data.PLAYERS = tuple(data.PLAYERS)
     if loaded:
         turns_cnt = len(data.TURNS)
         token_index = turns_cnt % 2
@@ -71,7 +75,8 @@ def game(loaded: bool = False) -> data.Score | None:
         data.BOARD[curr_turn] = data.TOKENS[token_index]
         data.TURNS.append(curr_turn+1)
         # ИСПРАВИТЬ: полагаю, коли так, то лучше ещё на инициализации сделать data.PLAYERS кортежем, а не списком, и не выполнять лишнее преобразование на каждой итерации
-        data.SAVES[tuple(data.PLAYERS)] = data.TURNS
+        data.SAVES[data.PLAYERS] = data.TURNS
+        # data.SAVES[tuple(data.PLAYERS)] = data.TURNS
         if len(data.TURNS) == 1 and remove_reverse in data.SAVES:
             data.SAVES.pop(remove_reverse)
         functions.write_ini()

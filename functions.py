@@ -67,7 +67,8 @@ def get_player_name() -> None:
         else:
             if player_name not in data.STATS:
                 data.STATS[player_name] = {'wins': 0, 'fails': 0, 'ties': 0, 'training': 'True'}
-                write_ini()
+                # Перенёс в main
+                # write_ini()
                 help.show_help()
             # ИСПОЛЬЗОВАТЬ: это действие происходит в любом случае, так что выносим его за пределы условной конструкции и не дублируем код
             data.PLAYERS.append(player_name)

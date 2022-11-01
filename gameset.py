@@ -47,6 +47,7 @@ def get_turn_order() -> None:
             continue
         else:
             # ИСПРАВИТЬ:
+            # Если активный игрок выбрал 'O', то он меняется местами с другим игроком в data.PLAYERS.
             if token.upper() == 'O':
                 data.PLAYERS.reverse()
         print()
