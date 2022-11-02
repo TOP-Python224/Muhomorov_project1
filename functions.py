@@ -27,7 +27,8 @@ def read_ini() -> bool:
     for section in saves.sections():
         players = tuple(section.split(';'))
         turns = [int(t) for t in saves[section]['turns'].split(',')]
-        data.SAVES[players] = turns
+        dimension = int(saves[section]['dimension'])
+        data.SAVES[players] = [turns, dimension]
     if data.STATS:
         return False
     else:
@@ -36,16 +37,19 @@ def read_ini() -> bool:
 
 def write_ini() -> None:
     """Записывает данные из глобальных переменных данных в ini-файлы."""
+    print(data.SAVES)
     players = ConfigParser()
     players.read_dict(data.STATS)
     with open(players_file, 'w', encoding='utf-8') as ini_file:
         players.write(ini_file)
     saves = ConfigParser()
     # ИСПОЛЬЗОВАТЬ: кажется, так всё-таки удобнее и читабельнее
-    for players, turns in data.SAVES.items():
+    for players, game_data in data.SAVES.items():
         section = ';'.join(players)
-        turns = ','.join([str(t) for t in turns])
-        saves[section] = {'turns': turns}
+        turns = ','.join([str(t) for t in game_data[0]])
+        dimension = str(game_data[1])
+        print(section, turns, dimension)
+        saves[section] = {'turns': turns, 'dimension': dimension}
     with open(saves_file, 'w', encoding='utf-8') as ini_file:
         saves.write(ini_file)
 
@@ -171,7 +175,10 @@ def get_slot(saves_slots: dict) -> int:
 def load_saves(slot: int, saves_slots: dict) -> None:
     """Загружает данные выбранной партии в глобальные переменные, выводит 2 последних хода."""
     data.PLAYERS = [*saves_slots[slot][0]]
-    data.TURNS = saves_slots[slot][1]
+    data.TURNS = saves_slots[slot][1][0]
+    saves_dim = saves_slots[slot][1][1]
+    if saves_dim > data.DIM:
+        change_dimension(saves_dim)
     token_index = 0
     if len(data.TURNS) < 2:
         print('Сохраненные ходы не отображаются, т.к. сохранено менее 2-х ходов!')
@@ -179,6 +186,7 @@ def load_saves(slot: int, saves_slots: dict) -> None:
     else:
         need_draw = data.TURNS[-2:]
     for turn in data.TURNS:
+        print(data.BOARD)
         data.BOARD[turn-1] = data.TOKENS[token_index]
         if turn in need_draw:
             print(f"{print_tutorial(turn-1, token_index, token_index)}\n")
