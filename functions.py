@@ -37,7 +37,6 @@ def read_ini() -> bool:
 
 def write_ini() -> None:
     """Записывает данные из глобальных переменных данных в ini-файлы."""
-    print(data.SAVES)
     players = ConfigParser()
     players.read_dict(data.STATS)
     with open(players_file, 'w', encoding='utf-8') as ini_file:
@@ -48,7 +47,6 @@ def write_ini() -> None:
         section = ';'.join(players)
         turns = ','.join([str(t) for t in game_data[0]])
         dimension = str(game_data[1])
-        print(section, turns, dimension)
         saves[section] = {'turns': turns, 'dimension': dimension}
     with open(saves_file, 'w', encoding='utf-8') as ini_file:
         saves.write(ini_file)
